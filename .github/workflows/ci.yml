@@ -2,8 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -13,8 +12,20 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: List Files
-      run: ls -la
+    - name: Build Step
+      run: echo "Build successful!"
 
-    - name: Build Success
-      run: echo "Build Successful 🚀"
+    - name: Slack Notification - Success
+      if: success()
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"✅ Build Successful for devops-web-app"}' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Slack Notification - Failure
+      if: failure()
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"❌ Build Failed for devops-web-app"}' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}
+
